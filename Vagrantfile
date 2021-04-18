@@ -13,6 +13,12 @@ IP_BASE = "192.168.50."
 VAGRANT_DISABLE_VBOXSYMLINKCREATE=1
 
 Vagrant.configure("2") do |config|
+    if Vagrant.has_plugin?("vagrant-proxyconf")
+        config.proxy.http     = "http://192.168.124.19:1081"
+        config.proxy.https    = "http://192.168.124.19:1081"
+        config.proxy.no_proxy = "localhost,127.0.0.1,192.168.50.10,192.168.50.11,192.168.50.12,192.168.50.13,192.168.0.0/16,10.96.0.0/12"
+    end
+
     config.ssh.insert_key = false
 
     (1..MASTERS_NUM).each do |i|      
