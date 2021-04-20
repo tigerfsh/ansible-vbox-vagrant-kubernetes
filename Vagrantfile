@@ -8,7 +8,7 @@ NODES_NUM = 2
 NODES_CPU = 2
 NODES_MEM = 2048
 
-IP_BASE = "192.168.50."
+IP_BASE = "192.168.124."
 
 VAGRANT_DISABLE_VBOXSYMLINKCREATE=1
 
@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
     if Vagrant.has_plugin?("vagrant-proxyconf")
         config.proxy.http     = "http://192.168.124.19:1081"
         config.proxy.https    = "http://192.168.124.19:1081"
-        config.proxy.no_proxy = "localhost,127.0.0.1,192.168.50.10,192.168.50.11,192.168.50.12,192.168.50.13,192.168.0.0/16,10.96.0.0/12"
+        config.proxy.no_proxy = "localhost,127.0.0.1,192.168.124.16,192.168.124.17,192.168.124.18,192.168.124.19,192.168.0.0/16,10.96.0.0/12"
     end
 
     config.ssh.insert_key = false
@@ -24,7 +24,7 @@ Vagrant.configure("2") do |config|
     (1..MASTERS_NUM).each do |i|      
         config.vm.define "k8s-m-#{i}" do |master|
             master.vm.box = IMAGE_NAME
-            master.vm.network "private_network", ip: "#{IP_BASE}#{i + 10}"
+            master.vm.network "public_network", ip: "#{IP_BASE}#{i + 15}"
             master.vm.hostname = "k8s-m-#{i}"
             master.vm.provider "virtualbox" do |v|
                 v.memory = MASTERS_MEM
@@ -37,9 +37,9 @@ Vagrant.configure("2") do |config|
                     k8s_cluster_name:       K8S_NAME,                    
                     k8s_master_admin_user:  "vagrant",
                     k8s_master_admin_group: "vagrant",
-                    k8s_master_apiserver_advertise_address: "#{IP_BASE}#{i + 10}",
+                    k8s_master_apiserver_advertise_address: "#{IP_BASE}#{i + 15}",
                     k8s_master_node_name: "k8s-m-#{i}",
-                    k8s_node_public_ip: "#{IP_BASE}#{i + 10}"
+                    k8s_node_public_ip: "#{IP_BASE}#{i + 15}"
                 }                
             end
         end
@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
     (1..NODES_NUM).each do |j|
         config.vm.define "k8s-n-#{j}" do |node|
             node.vm.box = IMAGE_NAME
-            node.vm.network "private_network", ip: "#{IP_BASE}#{j + 10 + MASTERS_NUM}"
+            node.vm.network "public_network", ip: "#{IP_BASE}#{j + 15 + MASTERS_NUM}"
             node.vm.hostname = "k8s-n-#{j}"
             node.vm.provider "virtualbox" do |v|
                 v.memory = NODES_MEM
@@ -62,7 +62,7 @@ Vagrant.configure("2") do |config|
                     k8s_cluster_name:     K8S_NAME,
                     k8s_node_admin_user:  "vagrant",
                     k8s_node_admin_group: "vagrant",
-                    k8s_node_public_ip: "#{IP_BASE}#{j + 10 + MASTERS_NUM}"
+                    k8s_node_public_ip: "#{IP_BASE}#{j + 15 + MASTERS_NUM}"
                 }
             end
         end
